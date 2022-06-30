@@ -435,6 +435,30 @@ describe 'zabbix::agent' do
           end
         end
       end
+
+      context 'when binary_location is define', if: facts[:kernel] == 'Linux' do
+        let :params do
+          { binary_location: '/usr/sbin/zabbix_agentd' }
+        end
+
+        it do
+          is_expected.to contain_zabbix__startup('zabbix-agent').with(
+            binary_location: '/usr/sbin/zabbix_agentd'
+          )
+        end
+      end
+
+      context 'when zabbix_package_agent is zabbix-agent2' do
+        let :params do
+          { zabbix_package_agent: 'zabbix-agent2' }
+        end
+
+        it do
+          is_expected.not_to contain_file(config_path).with_content(
+            %r{^(LogRemoteCommands|StartAgents|MaxLinesPerSecond|AllowRoot|User|LoadModulePath)}
+          )
+        end
+      end
     end
   end
 end
