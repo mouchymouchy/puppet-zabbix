@@ -1,15 +1,22 @@
-# == Define: zabbix::startup
+# @summary This manage the zabbix related service startup script.
+# @param pidfile Location of the PID file
+# @param agent_configfile_path Location of Zabbix's agent configuration file
+# @param server_configfile_path Location of Zabbix's server configuration file
+# @param database_type
+#   Type of database. Can use the following 2 databases:
+#   - postgresql
+#   - mysql
+# @param zabbix_user User the zabbix service will run as
+# @param additional_service_params Additional parameters to pass to the service
+# @param service_type Systemd service type
+# @param manage_database When true, it will configure the database and execute the sql scripts.
+# @param service_name Name of the service. Defaults to the resource name
+# @param binary_location This params is use for define a specific binary location. This is actually only available for zabbix agent and systemd
+# @example
+#   zabbix::startup { 'agent': }
 #
-#  This manage the zabbix related service startup script.
-#
-# === Requirements
-#
-# === Parameters
-#
-# === Example
-#
-#  zabbix::startup { 'agent':
-#  }
+# @example
+#   zabbix::startup { 'server': }
 #
 define zabbix::startup (
   Optional[Stdlib::Absolutepath] $pidfile                = undef,
@@ -17,13 +24,13 @@ define zabbix::startup (
   Optional[Stdlib::Absolutepath] $server_configfile_path = undef,
   Optional[Zabbix::Databases] $database_type             = undef,
   Optional[String] $zabbix_user                          = undef,
-  String $additional_service_params                      = '',
+  Optional[String[1]] $additional_service_params         = undef,
   String $service_type                                   = 'simple',
   Optional[Boolean] $manage_database                     = undef,
   Optional[String] $service_name                         = $name,
-  ) {
-
-  case $title {
+  Optional[Stdlib::Absolutepath] $binary_location        = undef,
+) {
+  case $title.downcase {
     /agent/: {
       assert_type(Stdlib::Absolutepath, $agent_configfile_path)
     }
@@ -33,18 +40,16 @@ define zabbix::startup (
       assert_type(Boolean, $manage_database)
     }
     default: {
-      fail('we currently only spport a title that contains agent or server')
+      fail('we currently only support a title that contains agent or server')
     }
   }
   # provided by camp2camp/systemd
   if $facts['systemd'] {
+    assert_type(Stdlib::Absolutepath, $binary_location)
     contain systemd
-    file { "/etc/systemd/system/${name}.service":
-      ensure  => file,
-      mode    => '0664',
+    systemd::unit_file { "${name}.service":
       content => template("zabbix/${service_name}-systemd.init.erb"),
     }
-    ~> Exec['systemctl-daemon-reload']
     file { "/etc/init.d/${name}":
       ensure  => absent,
     }
@@ -56,7 +61,24 @@ define zabbix::startup (
       mode    => '0755',
       content => template("zabbix/${name}-${osfamily_downcase}.init.erb"),
     }
+  } elsif $facts['os']['family'] in ['AIX'] {
+    file { "/etc/rc.d/init.d/${service_name}":
+      ensure  => file,
+      mode    => '0755',
+      content => epp('zabbix/zabbix-agent-aix.init.epp', { 'pidfile' => $pidfile, 'agent_configfile_path' => $agent_configfile_path, 'zabbix_user' => $zabbix_user }),
+    }
+    file { "/etc/rc.d/rc2.d/S999${service_name}":
+      ensure => 'link',
+      target => "/etc/rc.d/init.d/${service_name}",
+    }
+  } elsif ($facts['os']['family'] == 'windows') {
+    exec { "install_agent_${name}":
+      command  => "& 'C:\\Program Files\\Zabbix Agent\\zabbix_agentd.exe' --config ${agent_configfile_path} --install",
+      onlyif   => "if (Get-WmiObject -Class Win32_Service -Filter \"Name='${name}'\"){exit 1}",
+      provider => powershell,
+      notify   => Service[$name],
+    }
   } else {
-    fail('We currently only support Debian and RedHat osfamily as non-systemd')
+    fail('We currently only support Debian, Redhat, AIX and Windows osfamily as non-systemd')
   }
 }

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Puppet::Type.newtype(:zabbix_host) do
   ensurable do
     defaultvalues
@@ -9,6 +11,7 @@ Puppet::Type.newtype(:zabbix_host) do
 
     # Migrate group to groups
     return if self[:group].nil?
+
     self[:groups] = self[:group]
     delete(:group)
   end
@@ -46,6 +49,18 @@ Puppet::Type.newtype(:zabbix_host) do
 
   newproperty(:ipaddress) do
     desc 'The IP address of the machine running zabbix agent.'
+  end
+
+  newproperty(:interfacetype, int: 1) do
+    desc 'Interface type. 1 for zabbix agent.'
+  end
+
+  newproperty(:interfacedetails) do
+    desc 'Additional interface details.'
+
+    def insync?(is)
+      is.to_s == should.to_s
+    end
   end
 
   newproperty(:use_ip, boolean: true) do
@@ -94,6 +109,13 @@ Puppet::Type.newtype(:zabbix_host) do
     desc 'List of templates which should be loaded for this host.'
     def insync?(is)
       is.sort == should.sort
+    end
+  end
+
+  newproperty(:macros, array_matching: :all) do
+    desc 'Array of hashes (macros) which should be loaded for this host.'
+    def insync?(is)
+      is.sort_by(&:first) == should.sort_by(&:first)
     end
   end
 

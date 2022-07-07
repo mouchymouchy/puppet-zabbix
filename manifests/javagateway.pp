@@ -1,56 +1,19 @@
-# == Class: zabbix::javagateway
-#
-#  This will install and configure the zabbix-agent deamon
-#
-# === Requirements
-#
-# No requirements.
-#
-# === Parameters
-#
-# [*zabbix_version*]
-#   This is the zabbix version.
-#
-# [*zabbix_package_state*]
-#   The state of the package that needs to be installed: present or latest.
-#   Default: present
-#
-# [*manage_firewall*]
-#   When true, it will create iptables rules.
-#
-# [*manage_repo*]
-#   When true, it will create repository for installing the javagateway.
-#
-# [*pidfile*]
-#   Name of pid file.
-#
-# [*listenip*]
-#   List of comma delimited ip addresses that the agent should listen on.
-#
-# [*listenport*]
-#   Agent will listen on this port for connections from the server.
-#
-# [*startpollers*]
-#   Number of worker threads to start.
-#
-# [*timeout*]
-#   Number of worker threads to start.
-#
-# === Example
-#
+# @summary This will install and configure the zabbix-agent deamon
+# @param zabbix_version This is the zabbix version.
+# @param zabbix_package_state The state of the package that needs to be installed: present or latest.
+# @param manage_firewall When true, it will create iptables rules.
+# @param manage_repo When true, it will create repository for installing the javagateway.
+# @param pidfile Name of pid file.
+# @param listenip List of comma delimited ip addresses that the agent should listen on.
+# @param listenport Agent will listen on this port for connections from the server.
+# @param startpollers Number of worker threads to start.
+# @param timeout Number of worker threads to start.
+# @example
 #  class { 'zabbix::javagateway':
-#    zabbix_version => '2.2',
+#    zabbix_version => '5.2',
 #  }
-#
-# === Authors
-#
-# Author Name: ikben@werner-dijkerman.nl
-#
-# === Copyright
-#
-# Copyright 2014 Werner Dijkerman
-#
-class zabbix::javagateway(
+# @author Werner Dijkerman ikben@werner-dijkerman.nl
+class zabbix::javagateway (
   $zabbix_version           = $zabbix::params::zabbix_version,
   $zabbix_package_state     = $zabbix::params::zabbix_package_state,
   Boolean $manage_firewall  = $zabbix::params::manage_firewall,
@@ -60,8 +23,7 @@ class zabbix::javagateway(
   $listenport               = $zabbix::params::javagateway_listenport,
   $startpollers             = $zabbix::params::javagateway_startpollers,
   $timeout                  = $zabbix::params::javagateway_timeout,
-) inherits zabbix::params  {
-
+) inherits zabbix::params {
   # Only include the repo class if it has not yet been included
   unless defined(Class['Zabbix::Repo']) {
     class { 'zabbix::repo':
