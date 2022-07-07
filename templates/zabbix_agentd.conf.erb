@@ -48,7 +48,7 @@ DebugLevel=<%= @debuglevel %>
 #
 <% if @sourceip %>SourceIP=<%= @sourceip %><% end %>
 
-<% if @zabbix_version.to_f >= 5.0 %>
+<% unless @agent2 %>
 ### Option: AllowKey
 #       Allow execution of item keys matching pattern.
 #       Multiple keys matching rules may be defined in combination with DenyKey.
@@ -72,9 +72,7 @@ DebugLevel=<%= @debuglevel %>
 # Mandatory: no
 # Default:
 <% if @denykey %>DenyKey=<%= @denykey -%><% end %>
-<% end %>
 
-<% unless @agent2 %>
 ### Option: EnableRemoteCommands
 #	Whether remote commands from Zabbix server are allowed.
 #	0 - not allowed
