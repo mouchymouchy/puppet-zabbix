@@ -74,7 +74,7 @@ DebugLevel=<%= @debuglevel %>
 <% if @denykey %>DenyKey=<%= @denykey -%><% end %>
 <% end %>
 
-<% if @zabbix_version.to_f < 5.0 %>
+<% if unless @agent2 %>
 ### Option: EnableRemoteCommands
 #	Whether remote commands from Zabbix server are allowed.
 #	0 - not allowed
