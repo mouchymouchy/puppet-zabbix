@@ -10,10 +10,14 @@
 # @param proxy Whether it is monitored by an proxy or not.
 # @param interfacetype Internally used identifier for the host interface.
 # @param interfacedetails Hash with interface details for SNMP when interface type is 2.
+<<<<<<< HEAD
 # @param tls_connect How the server must connect to the agent
 # @param tls_accept How the agent can connect to the server
 # @param tls_issuer Issuer of the certificate that is allowed to talk with the serve
 # @param tls_subject Subject of the certificate that is allowed to talk with the server
+=======
+# @param tags Array of hashes (tags) which should be attached to this host.
+>>>>>>> 906c389 (Add host tags support)
 class zabbix::resources::agent (
   $hostname                           = undef,
   $ipaddress                          = undef,
@@ -30,6 +34,7 @@ class zabbix::resources::agent (
   Optional[Enum['unencrypted','psk','cert']] $tls_accept  = undef,
   Optional[String[1]] $tls_issuer                         = undef,
   Optional[String[1]] $tls_subject                        = undef,
+  $tags                               = undef,
 ) {
   @@zabbix_host { $hostname:
     ipaddress        => $ipaddress,
@@ -46,5 +51,6 @@ class zabbix::resources::agent (
     tls_accept       => $tls_accept,
     tls_issuer       => $tls_issuer,
     tls_subject      => $tls_subject,
+    tags             => $tags,
   }
 }

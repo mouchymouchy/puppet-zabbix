@@ -44,6 +44,7 @@ Puppet::Type.type(:zabbix_host).provide(:ruby, parent: Puppet::Provider::Zabbix)
         tls_connect: h['tls_connect'].to_i,
         tls_issuer: h['tls_issuer'].to_s,
         tls_subject: h['tls_subject'].to_s
+        tags: h['tags'].map { |tag| { tag['tag'] => tag['value'] } }
       )
     end
   end
@@ -269,4 +270,15 @@ Puppet::Type.type(:zabbix_host).provide(:ruby, parent: Puppet::Provider::Zabbix)
       tls_subject: @property_hash[:tls_subject].nil? ? '' : @property_hash[:tls_subject]
     )
   end
+  def tags=(array)
+    tagarray = array.map { |tag| { 'tag' => tag.first[0], 'value' => tag.first[1] } }
+    zbx.query(
+      method: 'host.update',
+      params: {
+        hostid: @property_hash[:id],
+        tags: tagarray
+      }
+    )
+  end
+
 end
