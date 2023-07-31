@@ -11,6 +11,7 @@
 # @param proxy Whether it is monitored by an proxy or not.
 # @param interfacetype Internally used identifier for the host interface.
 # @param interfacedetails Hash with interface details for SNMP when interface type is 2.
+# @param tags Array of hashes (tags) which should be attached to this host.
 class zabbix::resources::agent (
   $hostname                           = undef,
   $ipaddress                          = undef,
@@ -24,6 +25,7 @@ class zabbix::resources::agent (
   $proxy                              = undef,
   $interfacetype                      = 1,
   Variant[Array, Hash] $interfacedetails = [],
+  $tags                               = undef,
 ) {
   if $group and $groups {
     fail("Got group and groups. This isn't support! Please use groups only.")
@@ -47,5 +49,6 @@ class zabbix::resources::agent (
     proxy            => $proxy,
     interfacetype    => $interfacetype,
     interfacedetails => $interfacedetails,
+    tags             => $tags,
   }
 }
