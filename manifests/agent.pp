@@ -267,19 +267,6 @@ class zabbix::agent (
     }
     $_hostname = pick($hostname, $facts['networking']['fqdn'])
 
-    $_zbx_tags = [
-      { 'cmp' => $facts['synapps']['client'] },
-      { 'prj' => $facts['synapps']['project'] },
-      { 'clientcode' => $facts['claranet']['asset']['client_code'] },
-      { 'hostingcode' => $facts['claranet']['asset']['hosting_code'] },
-      { 'location' => $facts['claranet']['asset']['location'] },
-      { 'platform' => $facts['claranet']['asset']['platform'] },
-      { 'projectcode' => $facts['claranet']['asset']['project_code'] },
-      { 'role' => $facts['claranet']['asset']['role'] },
-      { 'subrole' => $facts['claranet']['asset']['subrole'] },
-      { 'status' => $facts['claranet']['asset']['status'] },
-    ]
-
     class { 'zabbix::resources::agent':
       hostname         => $_hostname,
       ipaddress        => $listen_ip,
@@ -292,7 +279,7 @@ class zabbix::agent (
       interfacetype    => $zbx_interface_type,
       interfacedetails => $zbx_interface_details,
       proxy            => $use_proxy,
-      tags             => $_zbx_tags,
+      tags             => $zbx_tags,
     }
   }
 
