@@ -79,7 +79,6 @@ Puppet::Type.type(:zabbix_host).provide(:ruby, parent: Puppet::Provider::Zabbix)
       ],
       templates: templates,
       groups: groups,
-      tags: @resource[:tags]
     )
   end
 
