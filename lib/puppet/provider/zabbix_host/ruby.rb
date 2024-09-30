@@ -66,6 +66,7 @@ Puppet::Type.type(:zabbix_host).provide(:ruby, parent: Puppet::Provider::Zabbix)
     zbx.hosts.create(
       host: @resource[:hostname],
       proxyid: proxyid,
+      monitored_by: '1',
       interfaces: [
         {
           type: @resource[:interfacetype].nil? ? 1 : @resource[:interfacetype],
