@@ -225,7 +225,7 @@ Puppet::Type.type(:zabbix_host).provide(:ruby, parent: Puppet::Provider::Zabbix)
     zbx.hosts.create_or_update(
       host: @resource[:hostname],
       monitored_by: '1',
-      proxyid: zbx.proxies.get_id(host: string)
+      proxyid: zbx.proxies.get_id(name: string)
     )
   end
 
