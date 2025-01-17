@@ -6,6 +6,8 @@ Puppet::Type.type(:zabbix_host).provide(:ruby, parent: Puppet::Provider::Zabbix)
 
   def self.instances
     proxies = zbx.proxies.all
+    proxygroups = zbx.proxygroup.all
+
     api_hosts = zbx.query(
       method: 'host.get',
       params: {
@@ -14,7 +16,7 @@ Puppet::Type.type(:zabbix_host).provide(:ruby, parent: Puppet::Provider::Zabbix)
         selectGroups: ['name'],
         selectMacros: %w[macro value],
         selectTags: "extend",
-        output: %w[host proxyid]
+        output: %w[host proxyid proxy_groupid]
       }
     )
 
@@ -25,6 +27,8 @@ Puppet::Type.type(:zabbix_host).provide(:ruby, parent: Puppet::Provider::Zabbix)
       use_ip = !interface['useip'].to_i.zero?
       proxy_select = proxies.select { |_name, id| id == h['proxyid'] }.keys.first
       proxy_select = '' if proxy_select.nil?
+      proxygroup_select = proxygroups.select { |_name, id| id == h['proxygroupid'] }.keys.first
+      proxygroup_select = '' if proxygroup_select.nil?
       new(
         ensure: :present,
         id: h['hostid'].to_i,
@@ -38,6 +42,7 @@ Puppet::Type.type(:zabbix_host).provide(:ruby, parent: Puppet::Provider::Zabbix)
         templates: h['parentTemplates'].map { |x| x['host'] },
         macros: h['macros'].map { |macro| { macro['macro'] => macro['value'] } },
         proxy: proxy_select,
+        proxygroup: proxygroup_select,
         interfacetype: interface['type'].to_i,
         interfacedetails: interface['details'],
         tags: h['tags'].map { |tag| { tag['tag'] => tag['value'] } }
@@ -61,11 +66,13 @@ Puppet::Type.type(:zabbix_host).provide(:ruby, parent: Puppet::Provider::Zabbix)
     groups = transform_to_array_hash('groupid', gids)
 
     proxyid = @resource[:proxy].nil? || @resource[:proxy].empty? ? nil : zbx.proxies.get_id(name: @resource[:proxy])
+    proxy_groupid = @resource[:proxygroup].nil? || @resource[:proxygroup].empty? ? nil : zbx.proxygroup.get_id(name: @resource[:proxygroup])
 
     # Now we create the host
     zbx.hosts.create(
       host: @resource[:hostname],
       proxyid: proxyid,
+      proxy_groupid: proxy_groupid,
       monitored_by: '1',
       interfaces: [
         {
@@ -226,6 +233,14 @@ Puppet::Type.type(:zabbix_host).provide(:ruby, parent: Puppet::Provider::Zabbix)
       host: @resource[:hostname],
       monitored_by: '1',
       proxyid: zbx.proxies.get_id(name: string)
+    )
+  end
+
+  def proxygroup=(string)
+    zbx.hosts.create_or_update(
+      host: @resource[:hostname],
+      monitored_by: '2',
+      proxy_groupid: zbx.proxygroup.get_id(name: string)
     )
   end
 
