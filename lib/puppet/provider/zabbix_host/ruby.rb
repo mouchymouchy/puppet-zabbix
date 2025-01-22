@@ -67,13 +67,13 @@ Puppet::Type.type(:zabbix_host).provide(:ruby, parent: Puppet::Provider::Zabbix)
 
     proxyid = @resource[:proxy].nil? || @resource[:proxy].empty? ? nil : zbx.proxies.get_id(name: @resource[:proxy])
     proxy_groupid = @resource[:proxygroup].nil? || @resource[:proxygroup].empty? ? nil : zbx.proxygroup.get_id(name: @resource[:proxygroup])
+    monitored_by = proxy_groupid && proxyid.nil? ? 2 : 1
 
-    # Now we create the host
-    zbx.hosts.create(
+    host_params = {
       host: @resource[:hostname],
       proxyid: proxyid,
       proxy_groupid: proxy_groupid,
-      monitored_by: '1',
+      monitored_by: monitored_by,
       interfaces: [
         {
           type: @resource[:interfacetype].nil? ? 1 : @resource[:interfacetype],
@@ -86,8 +86,14 @@ Puppet::Type.type(:zabbix_host).provide(:ruby, parent: Puppet::Provider::Zabbix)
         }
       ],
       templates: templates,
-      groups: groups,
-    )
+      groups: groups
+    }
+
+    host_params.delete(:proxyid) if host_params[:proxy_groupid] || host_params[:proxyid].nil?
+    host_params.delete(:proxy_groupid) if host_params[:proxy_groupid].nil?
+
+    # Now we create the host
+    zbx.hosts.create(host_params)
   end
 
   def exists?
