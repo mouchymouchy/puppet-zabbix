@@ -230,7 +230,7 @@ class zabbix::agent (
   String $service_type                                 = $zabbix::params::service_type,
   Boolean $manage_startup_script                       = $zabbix::params::manage_startup_script,
 ) inherits zabbix::params {
-  $agent2 = $zabbix_package_agent == 'zabbix-agent2'
+  $agent2 = $zabbix_package_agent in ['zabbix-agent2', 'Zabbix Agent 2 (64-bit)']
 
   # Find if listenip is set. If not, we can set to specific ip or
   # to network name. If more than 1 interfaces are available, we
