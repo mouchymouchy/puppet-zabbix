@@ -16,6 +16,7 @@ Puppet::Type.type(:zabbix_host).provide(:ruby, parent: Puppet::Provider::Zabbix)
         selectInterfaces: %w[interfaceid type main ip port useip details],
         selectGroups: ['name'],
         selectMacros: %w[macro value],
+        selectTags: 'extend',
         output: %w[host proxyid proxy_groupid tls_accept tls_connect tls_issuer tls_subject]
       }
     )
@@ -45,6 +46,7 @@ Puppet::Type.type(:zabbix_host).provide(:ruby, parent: Puppet::Provider::Zabbix)
         proxygroup: proxygroup_select,
         interfacetype: interface['type'].to_i,
         interfacedetails: interface['details'],
+        tags: h['tags'].map { |tag| { tag['tag'] => tag['value'] } },
         tls_accept: h['tls_accept'].to_i,
         tls_connect: h['tls_connect'].to_i,
         tls_issuer: h['tls_issuer'].to_s,
@@ -240,6 +242,17 @@ Puppet::Type.type(:zabbix_host).provide(:ruby, parent: Puppet::Provider::Zabbix)
       params: {
         hostid: @property_hash[:id],
         macros: macroarray
+      }
+    )
+  end
+
+  def tags=(array)
+    tagarray = array.map { |tag| { 'tag' => tag.first[0], 'value' => tag.first[1] } }
+    zbx.query(
+      method: 'host.update',
+      params: {
+        hostid: @property_hash[:id],
+        tags: tagarray
       }
     )
   end
