@@ -10,6 +10,8 @@
 # @param proxy Whether it is monitored by an proxy or not.
 # @param interfacetype Internally used identifier for the host interface.
 # @param interfacedetails Hash with interface details for SNMP when interface type is 2.
+# @param tags Array of hashes (tags) which should be attached to this host.
+# @param res_tags Puppet resource tags for exported resource collection.
 # @param tls_connect How the server must connect to the agent
 # @param tls_accept How the agent can connect to the server
 # @param tls_issuer Issuer of the certificate that is allowed to talk with the serve
@@ -26,6 +28,8 @@ class zabbix::resources::agent (
   $proxy                              = undef,
   $interfacetype                      = 1,
   Variant[Array, Hash] $interfacedetails = [],
+  $tags                               = undef,
+  $res_tags                           = undef,
   Optional[Enum['unencrypted','psk','cert']] $tls_connect = undef,
   Optional[Enum['unencrypted','psk','cert']] $tls_accept  = undef,
   Optional[String[1]] $tls_issuer                         = undef,
@@ -41,6 +45,8 @@ class zabbix::resources::agent (
     macros           => $macros,
     proxy            => $proxy,
     interfacetype    => $interfacetype,
+    tags             => $tags,
+    tag              => $res_tags,
     interfacedetails => $interfacedetails,
     tls_connect      => $tls_connect,
     tls_accept       => $tls_accept,

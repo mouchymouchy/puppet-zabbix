@@ -121,6 +121,13 @@ Puppet::Type.newtype(:zabbix_host) do
     desc 'Whether it is monitored by an proxy or not.'
   end
 
+  newproperty(:tags, array_matching: :all) do
+    desc 'List of host tags to assign to the zabbix host.'
+    def insync?(is)
+      is.sort_by(&:first) == should.sort_by(&:first)
+    end
+  end
+
   newproperty(:tls_connect) do
     desc 'How the server connect to the client (unencrypted, psk or cert)'
     def insync?(is)

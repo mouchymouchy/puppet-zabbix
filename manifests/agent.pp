@@ -29,6 +29,8 @@
 # @param zbx_macros List of macros which will be added when host is configured.
 # @param zbx_interface_type Integer specifying type of interface to be created.
 # @param zbx_interface_details Hash with interface details for SNMP when interface type is 2.
+# @param zbx_tags List of tags which will be added when host is configured.
+# @param res_tags Puppet resource tags for exported resource collection.
 # @param agent_configfile_path Agent config file path defaults to /etc/zabbix/zabbix_agentd.conf.
 # @param pidfile Name of pid file.
 # @param servicename Zabbix's agent service name.
@@ -164,6 +166,8 @@ class zabbix::agent (
   Array[Hash] $zbx_macros                              = [],
   Integer[1,4] $zbx_interface_type                     = 1,
   Variant[Array, Hash] $zbx_interface_details          = [],
+  Array[Hash] $zbx_tags                                = [],
+  Array[String] $res_tags                              = [],
   $agent_configfile_path                               = $zabbix::params::agent_configfile_path,
   $pidfile                                             = $zabbix::params::agent_pidfile,
   $servicename                                         = $zabbix::params::agent_servicename,
@@ -266,6 +270,8 @@ class zabbix::agent (
       interfacetype    => $zbx_interface_type,
       interfacedetails => $zbx_interface_details,
       proxy            => $use_proxy,
+      tags             => $zbx_tags,
+      res_tags         => $res_tags,
       tls_accept       => $tlsaccept,
       tls_connect      => $tlsconnect,
       tls_issuer       => $tlscertissuer,
