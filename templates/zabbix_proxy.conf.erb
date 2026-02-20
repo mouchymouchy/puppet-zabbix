@@ -40,7 +40,7 @@ ServerPort=<%= @zabbix_server_port %>
 #	Value is acquired from HostnameItem if undefined.
 #
 # Mandatory: no
-Hostname=<%= @hostname %>
+Hostname=<%= @facts['networking']['hostname'] %>
 
 ### Option: HostnameItem
 #	Item used for generating Hostname if it is undefined.
