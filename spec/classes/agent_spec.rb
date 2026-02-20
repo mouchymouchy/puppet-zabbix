@@ -490,6 +490,18 @@ describe 'zabbix::agent' do
         end
       end
 
+      context 'when binary_location is defined', if: facts[:kernel] == 'Linux' do
+        let :params do
+          { binary_location: '/usr/sbin/zabbix_agentd' }
+        end
+
+        it do
+          is_expected.to contain_zabbix__startup('zabbix-agent').with(
+            binary_location: '/usr/sbin/zabbix_agentd'
+          )
+        end
+      end
+
       context 'when zabbix_package_agent is zabbix-agent2' do
         next if facts[:os]['family'] == 'Gentoo'
 

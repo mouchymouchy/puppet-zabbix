@@ -118,6 +118,7 @@
 # @param userparameter User-defined parameter to monitor.
 # @param loadmodulepath Full path to location of agent modules.
 # @param loadmodule Module to load at agent startup.
+# @param binary_location Location of the binary file, only used for systemd startup script.
 # @param manage_startup_script
 #  If the init script should be managed by this module. Attention: This might
 #  cause problems with some config options of this module (e.g
@@ -228,6 +229,7 @@ class zabbix::agent (
   Hash[String, Array] $selinux_rules                   = $zabbix::params::selinux_rules,
   String $additional_service_params                    = $zabbix::params::additional_service_params,
   String $service_type                                 = $zabbix::params::service_type,
+  Optional[Stdlib::Absolutepath] $binary_location      = $zabbix::params::agent_binary_location,
   Boolean $manage_startup_script                       = $zabbix::params::manage_startup_script,
 ) inherits zabbix::params {
   $agent2 = $zabbix_package_agent == 'zabbix-agent2'
@@ -318,6 +320,7 @@ class zabbix::agent (
       additional_service_params => $additional_service_params,
       service_type              => $service_type,
       service_name              => 'zabbix-agent',
+      binary_location           => $binary_location,
       require                   => Package[$zabbix_package_agent],
     }
   }
